@@ -46,14 +46,21 @@ mep <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/cr_mep.geojso
 localidades <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/localidades2.geojson",
          quiet = TRUE)
 
-lista_ <- unique(cuadrantes$APROB)
-lista_ <- sort(lista_)
-lista_ <- c("Todas", lista_)
+lista_aprobacion <- unique(cuadrantes$APROB)
+lista_aprobacion <- sort(lista_aprobacion)
+lista_aprobacion <- c("Todos", lista_aprobacion)
 
 
 lista_canton <- unique(cuadrantes$CANTON)
 lista_canton <- sort(lista_canton)
-lista_canton <- c("Todas", lista_canton)
+lista_canton <- c("Todos", lista_canton)
+
+
+lista_distrito <- unique(cuadrantes$DISTRITO)
+lista_distrito <- sort(lista_distrito)
+lista_distrito <- c("Todos", lista_distrito)
+
+
 
 ```
 
@@ -65,8 +72,8 @@ h2(" Cuadrantes Aprobados")
 selectInput(
   inputId = "aprob",
   label = "Aprobado",
-  choices = lista_,
-  selected = "Todas"
+  choices = lista_aprobacion,
+  selected = "Todos"
 )
 
 h2("Cantones")
@@ -74,8 +81,49 @@ selectInput(
   inputId = "canton",
   label = "Cantón",
   choices = lista_canton,
-  selected = "Todas"
+  selected = "Todos"
 )
+
+h2("Distrito")
+selectInput(
+  inputId = "distrito",
+  label = "Distritos",
+  choices = lista_distrito,
+  selected = "Todos"
+)
+
+
+
+filtrarRegistros <-  reactive({
+  cuadrantes_f <-
+   cuadrantes %>%
+  dplyr::select(aprob, canton, distrito)
+  
+  
+   if (input$aprob != "Todos") {
+    cuadrantes_f <-
+      cuadrantes_f %>%
+      filter(aprob == input$aprob)
+  }
+  
+ 
+  if (input$canton != "Todos") {
+    cuadrantes_f <-
+      cuadrantes_f %>%
+      filter(canton == input$canton)
+  }
+  
+  
+   if (input$distrito != "Todos") {
+    cuadrantes_f <-
+      cuadrantes_f %>%
+      filter(distrito == input$distrito)
+  }
+  
+  return(cuadrantes_f)
+})
+
+
 ```
 
 Column {data-width=650}
@@ -89,8 +137,23 @@ Column {data-width=650}
 colores <- c( "#4DAF4A" , "#B2FFFC","#FFFF33" )
 c_zona <- levels(as.factor(cuadrantes$NOMB_ZONA))
 paleta <- colorFactor(palette = colores, domain = c_zona)
+icon_1 <- makeAwesomeIcon(
+  icon= "graduation-cap",
+  iconColor = "#87CEEB",
+  markerColor = "blue",
+  library = "fa"
+)
 
+icon_2 <- makeAwesomeIcon(
+  icon= "location-arrow",
+  iconColor = "#00FF7F",
+  markerColor = "#713d35",
+  library = "fa"
+)
 
+renderLeaflet({
+ registros <-
+  filtrarRegistros()
 
 leaflet() %>%
     addTiles(group = "OSM") %>%
@@ -102,7 +165,7 @@ leaflet() %>%
   
   
   addPolygons(
-      data = cuadrantes,
+      data = registros,
       color = ~paleta(NOMB_ZONA),
       fillOpacity = 1,
       weight = 1,
@@ -110,12 +173,12 @@ leaflet() %>%
       stroke = TRUE,
       group = "Cuadrantes",
       popup= paste0( "<strong> Cuadrante: <strong/>",
-      cuadrantes$POBLADO)
+      registros$POBLADO)
     ) %>%
     
     addLegend(
       pal = paleta,
-      values = cuadrantes$NOMB_ZONA,
+      values = registros$NOMB_ZONA,
       opacity = 1,
       title = "Zona"
     ) %>%
@@ -137,7 +200,7 @@ leaflet() %>%
     addSearchOSM() %>%
     addMouseCoordinates()
 
-
+})
 ```
 
 Column {data-width=350}
@@ -156,5 +219,5 @@ Column {data-width=350}
 
 ```
 
-![](https://marcelocubero.github.io/capas_TFG/5.png){width='300px'} 
-![](https://marcelocubero.github.io/capas_TFG/INVU.jpg){width='300px'}
+![](https://marcelocubero.github.io/capas_TFG/5.png){width='500px'} 
+![](https://marcelocubero.github.io/capas_TFG/INVU.jpg){width='500px'}
