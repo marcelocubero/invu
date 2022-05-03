@@ -1,0 +1,160 @@
+---
+title: "Visor Cuadrantes Urbanos"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    theme: cerulean
+    social: menu
+    source_code: embed
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+defaultEncoding <- "UTF8"
+library(dplyr)
+library(sf)
+library(terra)
+library(raster)
+library(DT)
+library(ggplot2)
+library(plotly)
+library(leaflet)
+library(leaflet.extras)
+library(leafem)
+library(shiny)
+library(shinydashboard)
+library(shinyWidgets)
+library(rgdal)
+library(tidyverse)
+library(rmapshaper)
+library(leaflegend)
+```
+
+```{r}
+
+cantones <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/cantones4.geojson",
+         quiet = TRUE)
+
+cuadrantes <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/cuadrantes_visor.geojson",
+         quiet = TRUE)
+
+mep <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/cr_mep.geojson",
+         quiet = TRUE)
+
+localidades <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/localidades2.geojson",
+         quiet = TRUE)
+
+lista_ <- unique(cuadrantes$APROB)
+lista_ <- sort(lista_)
+lista_ <- c("Todas", lista_)
+
+
+lista_canton <- unique(cuadrantes$CANTON)
+lista_canton <- sort(lista_canton)
+lista_canton <- c("Todas", lista_canton)
+
+```
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+```{r}
+
+h2(" Cuadrantes Aprobados")
+selectInput(
+  inputId = "aprob",
+  label = "Aprobado",
+  choices = lista_,
+  selected = "Todas"
+)
+
+h2("Cantones")
+selectInput(
+  inputId = "canton",
+  label = "Cantón",
+  choices = lista_canton,
+  selected = "Todas"
+)
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Visor
+
+```{r}
+
+
+colores <- c( "#4DAF4A" , "#B2FFFC","#FFFF33" )
+c_zona <- levels(as.factor(cuadrantes$NOMB_ZONA))
+paleta <- colorFactor(palette = colores, domain = c_zona)
+
+
+
+leaflet() %>%
+    addTiles(group = "OSM") %>%
+    addProviderTiles(providers$Esri.NatGeoWorldMap , group = "NatGeo"
+                     ) %>%
+    addProviderTiles(providers$CartoDB.DarkMatter, group = "CartoDB-Black"
+                     ) %>%
+    addProviderTiles("Esri.WorldImagery", group= "ESRI") %>%
+  
+  
+  addPolygons(
+      data = cuadrantes,
+      color = ~paleta(NOMB_ZONA),
+      fillOpacity = 1,
+      weight = 1,
+      opacity = 1,
+      stroke = TRUE,
+      group = "Cuadrantes",
+      popup= paste0( "<strong> Cuadrante: <strong/>",
+      cuadrantes$POBLADO)
+    ) %>%
+    
+    addLegend(
+      pal = paleta,
+      values = cuadrantes$NOMB_ZONA,
+      opacity = 1,
+      title = "Zona"
+    ) %>%
+  
+  
+ addLayersControl(
+      "bottomleft",
+      baseGroups = c("OSM", "NatGeo", "CartoDB-Black", "ESRI"),
+      overlayGroups = c(
+        "Cantones" , "Cuadrantes" , "Centros Educativos" , "Localidades"
+      ),
+      options = layersControlOptions(collapsed = TRUE)
+    ) %>%
+    addScaleBar("bottomright") %>%
+    addMiniMap() %>%
+    addResetMapButton() %>%
+    addFullscreenControl() %>%
+    addControlGPS() %>%
+    addSearchOSM() %>%
+    addMouseCoordinates()
+
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+
+### Tabla
+
+```{r}
+
+```
+
+### Información
+
+```{r}
+
+```
+
+![](https://marcelocubero.github.io/capas_TFG/5.png){width='300px'} 
+![](https://marcelocubero.github.io/capas_TFG/INVU.jpg){width='300px'}
