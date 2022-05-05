@@ -48,17 +48,17 @@ localidades <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/local
 
 lista_aprobacion <- unique(cuadrantes$aprob)
 lista_aprobacion <- sort(lista_aprobacion)
-lista_aprobacion <- c("Todos", lista_aprobacion)
+lista_aprobacion <- c("Todas", lista_aprobacion)
 
 
 lista_canton <- unique(cuadrantes$canton)
 lista_canton <- sort(lista_canton)
-lista_canton <- c("Todos", lista_canton)
+lista_canton <- c("Todas", lista_canton)
 
 
 lista_distrito <- unique(cuadrantes$distrito)
 lista_distrito <- sort(lista_distrito)
-lista_distrito <- c("Todos", lista_distrito)
+lista_distrito <- c("Todas", lista_distrito)
 
 # sf::sf_use_s2(FALSE)
 
@@ -74,7 +74,7 @@ selectInput(
   inputId = "aprob",
   label = "Aprobado",
   choices = lista_aprobacion,
-  selected = "Todos"
+  selected = "Todas"
 )
 
 h2("Cantones")
@@ -82,7 +82,7 @@ selectInput(
   inputId = "canton",
   label = "Cantón",
 choices = lista_canton,
-  selected = "Todos"
+  selected = "Todas"
 )
 
 h2("Distrito")
@@ -90,17 +90,17 @@ selectInput(
   inputId = "distrito",
 label = "Distritos",
   choices = lista_distrito,
-  selected = "Todos"
+  selected = "Todas"
 )
 
 
 
 
 
-h2("Área")
-numericRangeInput(
-  inputId = "area_km2",
-  label = "Km2",
+ h2("Área")
+ numericRangeInput(
+  inputId = "area_m2",
+  label = "m2",
   value = c(2000, 14000000),
   width = NULL,
   separator = " a ",
@@ -116,32 +116,32 @@ numericRangeInput(
  filtrarRegistros <-  reactive({
   cuadrantes_f <-
   cuadrantes  %>%
-   dplyr::select( area_km2, aprob, canton, distrito, nomb_zona)
+   dplyr::select( area_m2, aprob, canton, distrito, nomb_zona)
   
   cuadrantes_f <-
     cuadrantes_f  %>%
     
     filter(
-    area_km2 >= input$area_km2[1] &
-    area_km2 <= input$area_km2[2]
+    area_m2 >= input$area_m2[1] &
+    area_m2 <= input$area_m2[2]
   )
 
 
-  if (input$aprob != "Todos") {
+  if (input$aprob != "Todas") {
    cuadrantes_f <-
      cuadrantes_f %>%
       filter(aprob == input$aprob)
   }
   
  
-  if (input$canton != "Todos") {
+  if (input$canton != "Todas") {
    cuadrantes_f <-
       cuadrantes_f %>%
  filter(canton == input$canton)
   }
   
   
-  if (input$distrito != "Todos") {
+  if (input$distrito != "Todas") {
     cuadrantes_f <-
     cuadrantes_f %>%
      filter(distrito == input$distrito)
@@ -234,7 +234,19 @@ leaflet() %>%
       group= "Localidades"
      ) %>%  
   
-  
+
+    
+      addPolygons(
+      data = cantones,
+      color = "#00008B",
+      fillOpacity = 0,
+      weight = 1,
+      opacity = 1,
+      stroke = TRUE,
+      group = "Cantones",
+      popup= paste0( "<strong> Cantón: <strong/>",
+      cantones$canton)
+    ) %>%
   
   
  addLayersControl(
