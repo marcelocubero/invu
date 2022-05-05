@@ -184,9 +184,9 @@ renderLeaflet({
  registros <-
   filtrarRegistros()
  
-# mep_c <- mep [registros, , op = st_within]
-# localidades_c <- localidades [registros, , op = st_within]
- 
+ mep_c <- mep [registros, , op = st_within]
+ localidades_c <- localidades [registros, , op = st_within]
+ cantones_c <- cantones [registros, , op = st_intersects]
  
  
  
@@ -222,21 +222,21 @@ leaflet() %>%
   
   
   addAwesomeMarkers(
-      data = mep,
+      data = mep_c,
       icon= icon_1,
       popup = paste0(
-      mep$Nivel,
+      mep_c$Nivel,
        ":<br>",
-      mep$Nombre   
+      mep_c$Nombre   
        ),
       group= "Centros Educativos"
      ) %>%
     
      addAwesomeMarkers(
-      data = localidades,
+      data = localidades_c,
       icon= icon_2,
       popup = paste0(
-      localidades$nombre   
+      localidades_c$nombre   
        ),
       group= "Localidades"
      ) %>%  
@@ -244,7 +244,7 @@ leaflet() %>%
 
     
       addPolygons(
-      data = cantones,
+      data = cantones_c,
       color = "#00008B",
       fillOpacity = 0,
       weight = 1,
@@ -252,7 +252,7 @@ leaflet() %>%
       stroke = TRUE,
       group = "Cantones",
       popup= paste0( "<strong> Cantón: <strong/>",
-      cantones$canton)
+      cantones_c$canton)
     ) %>%
   
   
