@@ -37,13 +37,13 @@ library(leaflegend)
 cantones <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/cantones4.geojson",
          quiet = TRUE)
 
-cuadrantes <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/cuadrantes_cr.geojson",
+cuadrantes <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/cuadrantescr.geojson",
          quiet = TRUE)
 
-mep <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/cr_mep.geojson",
+mep <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/mepcr_.geojson",
          quiet = TRUE)
 
-localidades <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/localidades2.geojson",
+localidades <- st_read("/vsicurl/https://marcelocubero.github.io/capas_TFG/localidadescr_.geojson",
          quiet = TRUE)
 
 lista_aprobacion <- unique(cuadrantes$aprob)
@@ -59,6 +59,7 @@ lista_canton <- c("Todas", lista_canton)
 lista_distrito <- unique(cuadrantes$distrito)
 lista_distrito <- sort(lista_distrito)
 lista_distrito <- c("Todas", lista_distrito)
+
 
  sf::sf_use_s2(FALSE)
 
@@ -183,8 +184,8 @@ renderLeaflet({
  registros <-
   filtrarRegistros()
  
- mep_c <- mep [registros, , op = st_within]
- localidades_c <- localidades [registros, , op = st_within]
+# mep_c <- mep [registros, , op = st_within]
+# localidades_c <- localidades [registros, , op = st_within]
  
  
  
@@ -221,21 +222,21 @@ leaflet() %>%
   
   
   addAwesomeMarkers(
-      data = mep_C,
+      data = mep,
       icon= icon_1,
       popup = paste0(
-      mep_c$Nivel,
+      mep$Nivel,
        ":<br>",
-      mep_c$Nombre   
+      mep$Nombre   
        ),
       group= "Centros Educativos"
      ) %>%
     
      addAwesomeMarkers(
-      data = localidades_c,
+      data = localidades,
       icon= icon_2,
       popup = paste0(
-      localidades_c$nombre   
+      localidades$nombre   
        ),
       group= "Localidades"
      ) %>%  
