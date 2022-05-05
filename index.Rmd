@@ -283,6 +283,20 @@ Column {data-width=350}
 
 ```{r}
 
+
+renderDT({
+  registros <- filtrarRegistros()
+  
+  registros %>%
+    st_drop_geometry() %>%
+    datatable(options = list(
+      language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')))
+})
+
+
+
+
+
 ```
 
 ### Información
